@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JwtService jwtService;
 
     public void register(RegisterRequest request){
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -22,6 +23,13 @@ public class AuthService {
                 .password(bCryptPasswordEncoder.encode(request.getPassword()))
                 .build();
         userRepository.save(user);
-
+    }
+    public String login(String email, String password){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email not found"));
+        if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Passwords do not match");
+        }
+        return jwtService.generateToken(email);
     }
 }
