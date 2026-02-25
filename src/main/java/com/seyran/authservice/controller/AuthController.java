@@ -1,5 +1,7 @@
 package com.seyran.authservice.controller;
 
+import com.seyran.authservice.dto.LoginRequest;
+import com.seyran.authservice.dto.LoginResponse;
 import com.seyran.authservice.dto.RegisterRequest;
 import com.seyran.authservice.dto.RegisterResponse;
 import com.seyran.authservice.service.AuthService;
@@ -20,5 +22,11 @@ public class AuthController {
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
         return ResponseEntity.ok(RegisterResponse.builder().message("User register successfully").build());
+    }
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        String token = authService.login(request.getEmail(), request.getPassword());
+
+        return ResponseEntity.ok(LoginResponse.builder().token(token).build());
     }
 }
