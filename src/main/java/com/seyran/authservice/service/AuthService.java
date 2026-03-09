@@ -5,6 +5,7 @@ import com.seyran.authservice.entity.User;
 import com.seyran.authservice.exception.EmailAlreadyExistsException;
 import com.seyran.authservice.exception.InvalidCredentialsException;
 import com.seyran.authservice.repository.UserRepository;
+import com.seyran.authservice.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,6 @@ public class AuthService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new InvalidCredentialsException("Passwords do not match");
         }
-        return jwtService.generateToken(email);
+        return jwtService.generateAccessToken(user);
     }
 }

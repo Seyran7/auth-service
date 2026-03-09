@@ -1,4 +1,4 @@
-package com.seyran.authservice.service;
+package com.seyran.authservice.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
