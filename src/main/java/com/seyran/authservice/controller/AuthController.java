@@ -1,17 +1,13 @@
 package com.seyran.authservice.controller;
 
-import com.seyran.authservice.dto.LoginRequest;
-import com.seyran.authservice.dto.LoginResponse;
-import com.seyran.authservice.dto.RegisterRequest;
-import com.seyran.authservice.dto.RegisterResponse;
+import com.seyran.authservice.dto.*;
+import com.seyran.authservice.entity.RefreshToken;
 import com.seyran.authservice.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,5 +24,29 @@ public class AuthController {
         String token = authService.login(request.getEmail(), request.getPassword());
 
         return ResponseEntity.ok(LoginResponse.builder().token(token).build());
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
+
+        RefreshToken refreshToken = refreshTokenService.verifyToken(request.getRefreshToken());
+
+        String accessToken = jwtService.generateToken(refreshToken.getUser().getEmail());
+
+        return ResponseEntity.ok(accessToken);
+    }
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Auth service is running");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        return ResponseEntity.ok(authentication.getName());
     }
 }
