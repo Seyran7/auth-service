@@ -2,10 +2,13 @@ package com.seyran.authservice.controller;
 
 import com.seyran.authservice.dto.*;
 import com.seyran.authservice.entity.RefreshToken;
+import com.seyran.authservice.repository.RefreshTokenRepository;
+import com.seyran.authservice.security.JwtService;
 import com.seyran.authservice.service.AuthService;
+import com.seyran.authservice.service.RefreshTokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtService jwtService;
+
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
@@ -48,5 +55,13 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(authentication.getName());
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestBody RefreshTokenRequest request) {
+
+        refreshTokenRepository.findByToken(request.getRefreshToken())
+                .ifPresent(refreshTokenRepository::delete);
+
+        return ResponseEntity.ok("Logged out successfully");
     }
 }
